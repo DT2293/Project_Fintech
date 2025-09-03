@@ -1,0 +1,6 @@
+@FintechApp.Presentation_HostAddress = http://localhost:5145
+
+GET {{FintechApp.Presentation_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
