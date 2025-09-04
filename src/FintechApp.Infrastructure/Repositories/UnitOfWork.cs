@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using FintechApp.Domain.Entities;
 using FintechApp.Domain.Interfaces;
 
 namespace FintechApp.Infrastructure.Repositories
@@ -14,10 +15,15 @@ namespace FintechApp.Infrastructure.Repositories
             _context = context;
             Users = new UserRepository(_context);
             Roles = new RoleRepository(_context);
+            Transaction = new TransactionRepository(_context);
         }
 
         public IUserRepository Users { get; }
         public IRoleRepository Roles { get; }
+
+        public ITransactionRepository Transaction { get; }
+
+        public ITransactionRepository Transactions => throw new NotImplementedException();
 
         public async Task<int> SaveChangesAsync()
         {

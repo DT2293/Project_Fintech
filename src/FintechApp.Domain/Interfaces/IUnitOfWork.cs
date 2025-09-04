@@ -12,6 +12,8 @@ namespace FintechApp.Domain.Interfaces
         IUserRepository Users { get; }
         IRoleRepository Roles { get; }
 
+        ITransactionRepository Transactions { get; }
+
         Task<int> SaveChangesAsync();
     }
 }

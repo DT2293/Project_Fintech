@@ -1,0 +1,44 @@
+﻿using FintechApp.Application.DTOs;
+using FintechApp.Application.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+
+namespace FintechApp.Presentation.Controller
+{
+    public class TransactionsController
+    {
+        private readonly ITransactionService _service;
+
+        public TransactionsController(ITransactionService service)
+        {
+            _service = service;
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create(TransactionCreateRequest dto)
+        {
+            var result = await _service.CreateAsync(dto);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var result = await _service.GetByIdAsync(id);
+            return result.Success ? Ok(result) : NotFound(result);
+        }
+
+        [HttpGet("wallet/{walletId}")]
+        public async Task<IActionResult> GetByWalletPaged(int walletId, int pageNumber = 1, int pageSize = 20)
+        {
+            var result = await _service.GetByWalletPagedAsync(walletId, pageNumber, pageSize);
+            return Ok(result);
+        }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> Search([FromQuery] TransactionSearchRequest dto)
+        {
+            var result = await _service.SearchAsync(dto);
+            return Ok(result);
+        }
+    }
+}
