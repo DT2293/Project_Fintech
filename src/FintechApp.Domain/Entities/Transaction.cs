@@ -17,5 +17,21 @@ namespace FintechApp.Domain.Entities
 
         public int ToWalletId { get; set; }
         public UserWallet ToWallet { get; set; } = null!;
+        public TransactionStatus Status { get; set; } 
+        public TransactionType Type { get; set; }
+    }
+    public enum TransactionStatus
+    {
+        Pending,    
+        Success,
+        Failed
+    }
+
+    public enum TransactionType
+    {
+        Deposit,  
+        Withdrawal, 
+        Transfer,  
+        Debit       
     }
 }

@@ -12,8 +12,10 @@ namespace FintechApp.Domain.Interfaces
         Task<List<Transaction>> GetByWalletIdAsync(int walletId);
         Task<int> CountByWalletIdAsync(int walletId);
         Task<List<Transaction>> GetPagedByWalletAsync(int walletId, int pageNumber, int pageSize);
-        Task<List<Transaction>> SearchAsync(DateTime? fromDate, DateTime? toDate, string? walletname);
-        Task<int> CountSearchAsync(DateTime? fromDate, DateTime? toDate, string? walletname);
+        //Task<List<Transaction>> SearchAsync(DateTime? fromDate, DateTime? toDate, string? walletname);
+        //Task<int> CountSearchAsync(DateTime? fromDate, DateTime? toDate, string? walletname);
+        Task<List<Transaction>> SearchAsync(DateTime? fromDate, DateTime? toDate, int? walletId, int pageNumber, int pageSize);
+        Task<int> CountSearchAsync(DateTime? fromDate, DateTime? toDate, int? walletId);
 
     }
 }

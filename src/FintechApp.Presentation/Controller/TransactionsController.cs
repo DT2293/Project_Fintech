@@ -1,10 +1,13 @@
 ﻿using FintechApp.Application.DTOs;
 using FintechApp.Application.Interfaces;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FintechApp.Presentation.Controller
 {
-    public class TransactionsController
+    [Route("api/[controller]")]
+    [ApiController]
+    public class TransactionsController : ControllerBase
     {
         private readonly ITransactionService _service;
 

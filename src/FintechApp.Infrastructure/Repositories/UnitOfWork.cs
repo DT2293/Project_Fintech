@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using FintechApp.Domain.Entities;
 using FintechApp.Domain.Interfaces;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace FintechApp.Infrastructure.Repositories
 {
@@ -15,21 +16,23 @@ namespace FintechApp.Infrastructure.Repositories
             _context = context;
             Users = new UserRepository(_context);
             Roles = new RoleRepository(_context);
-            Transaction = new TransactionRepository(_context);
+            UserWallets = new UserWalletRepository(_context);
+            Transactions = new TransactionRepository(_context);
         }
 
         public IUserRepository Users { get; }
         public IRoleRepository Roles { get; }
 
-        public ITransactionRepository Transaction { get; }
-
-        public ITransactionRepository Transactions => throw new NotImplementedException();
-
+        public IUserWalletRepository UserWallets { get; }
+        public ITransactionRepository Transactions { get; }
         public async Task<int> SaveChangesAsync()
         {
             return await _context.SaveChangesAsync();
         }
-
+        public async Task<IDbContextTransaction> BeginTransactionAsync()
+        {
+            return await _context.Database.BeginTransactionAsync();
+        }
         protected virtual void Dispose(bool disposing)
         {
             if (!_disposed)

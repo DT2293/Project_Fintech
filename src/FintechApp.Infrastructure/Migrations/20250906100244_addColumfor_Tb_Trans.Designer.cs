@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -10,9 +11,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FintechApp.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250906100244_addColumfor_Tb_Trans")]
+    partial class addColumfor_Tb_Trans
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -165,35 +168,6 @@ namespace FintechApp.Infrastructure.Migrations
                     b.ToTable("Transactions");
                 });
 
-            modelBuilder.Entity("FintechApp.Domain.Entities.TransactionEntry", b =>
-                {
-                    b.Property<int>("EntryId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("EntryId"));
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("numeric");
-
-                    b.Property<int>("EntryType")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("TransactionId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("WalletId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("EntryId");
-
-                    b.HasIndex("TransactionId");
-
-                    b.HasIndex("WalletId");
-
-                    b.ToTable("TransactionEntries");
-                });
-
             modelBuilder.Entity("FintechApp.Domain.Entities.User", b =>
                 {
                     b.Property<int>("UserId")
@@ -320,25 +294,6 @@ namespace FintechApp.Infrastructure.Migrations
                     b.Navigation("FromWallet");
 
                     b.Navigation("ToWallet");
-                });
-
-            modelBuilder.Entity("FintechApp.Domain.Entities.TransactionEntry", b =>
-                {
-                    b.HasOne("FintechApp.Domain.Entities.Transaction", "Transaction")
-                        .WithMany()
-                        .HasForeignKey("TransactionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("FintechApp.Domain.Entities.UserWallet", "Wallet")
-                        .WithMany()
-                        .HasForeignKey("WalletId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Transaction");
-
-                    b.Navigation("Wallet");
                 });
 
             modelBuilder.Entity("FintechApp.Domain.Entities.UserRole", b =>

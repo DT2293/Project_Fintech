@@ -20,27 +20,28 @@ namespace FintechApp.Application.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<ApiResponse<Transaction>> CreateAsync(TransactionCreateRequest dto)
+        public async Task<ApiResponse<TransactionResponse>> CreateAsync(TransactionCreateRequest dto)
         {
-            // Lấy 2 ví
-            var fromWallet = await _unitOfWork.UserWallets.GetByIdAsync(dto.FromWalletId);
-            var toWallet = await _unitOfWork.UserWallets.GetByIdAsync(dto.ToWalletId);
+            var fromWallet = await _unitOfWork.UserWallets.GetWalletWithCurrencyAsync(dto.FromWalletId);
+            var toWallet = await _unitOfWork.UserWallets.GetWalletWithCurrencyAsync(dto.ToWalletId);
 
             if (fromWallet == null || toWallet == null)
-                return ApiResponse<Transaction>.Fail("Wallet not found");
+                return ApiResponse<TransactionResponse>.Fail("Wallet not found");
+
+            if (fromWallet.CurrencyId != toWallet.CurrencyId)
+                return ApiResponse<TransactionResponse>.Fail("Wallets must use the same currency");
 
             if (fromWallet.Balance < dto.Amount)
-                return ApiResponse<Transaction>.Fail("Insufficient balance");
+                return ApiResponse<TransactionResponse>.Fail("Insufficient balance");
 
-            // Transaction EF Core
-            using var transaction = await _unitOfWork.BeginTransactionAsync();
+            await using var transaction = await _unitOfWork.BeginTransactionAsync();
 
             try
             {
                 fromWallet.Balance -= dto.Amount;
                 toWallet.Balance += dto.Amount;
 
-                var t = new Transaction
+                var entity = new Transaction
                 {
                     FromWalletId = dto.FromWalletId,
                     ToWalletId = dto.ToWalletId,
@@ -48,12 +49,21 @@ namespace FintechApp.Application.Services
                     CreatedAt = DateTime.UtcNow
                 };
 
-                await _unitOfWork.Transactions.AddAsync(t);
+                await _unitOfWork.Transactions.AddAsync(entity);
                 await _unitOfWork.SaveChangesAsync();
 
                 await transaction.CommitAsync();
 
-                return ApiResponse<Transaction>.SuccessResponse(t, "Transaction created successfully");
+                var response = new TransactionResponse(
+                    entity.TransactionId,
+                    entity.Amount,
+                    entity.CreatedAt,
+                    fromWallet.Name,
+                    toWallet.Name,
+                    fromWallet.Currency.Name 
+                );
+
+                return ApiResponse<TransactionResponse>.SuccessResponse(response, "Transaction created successfully");
             }
             catch
             {
@@ -61,6 +71,7 @@ namespace FintechApp.Application.Services
                 throw;
             }
         }
+
 
         public async Task<ApiResponse<Transaction>> GetByIdAsync(int transactionId)
         {
@@ -70,33 +81,67 @@ namespace FintechApp.Application.Services
             return ApiResponse<Transaction>.SuccessResponse(t);
         }
 
-        public async Task<PagedResponse<Transaction>> GetByWalletPagedAsync(int walletId, int pageNumber, int pageSize)
+        public async Task<PagedResponse<TransactionResponse>> GetByWalletPagedAsync(int walletId, int pageNumber, int pageSize)
         {
             var total = await _unitOfWork.Transactions.CountByWalletIdAsync(walletId);
             var list = await _unitOfWork.Transactions.GetPagedByWalletAsync(walletId, pageNumber, pageSize);
 
-            return new PagedResponse<Transaction>
+            var responseList = list.Select(t => new TransactionResponse(
+                t.TransactionId,
+                t.Amount,
+                t.CreatedAt,
+                t.FromWallet.Name,
+                t.ToWallet.Name,
+                t.FromWallet.Currency.Name
+            )).ToList();
+
+            return new PagedResponse<TransactionResponse>
             {
                 Success = true,
-                Data = list,
+                Data = responseList,
                 PageNumber = pageNumber,
                 PageSize = pageSize,
                 TotalRecords = total
             };
         }
 
-        public async Task<PagedResponse<Transaction>> SearchAsync(TransactionSearchRequest dto)
-        {
-            var total = await _unitOfWork.Transactions.CountSearchAsync(dto);
-            var list = await _unitOfWork.Transactions.SearchAsync(dto);
 
-            return new PagedResponse<Transaction>
+        public async Task<PagedResponse<TransactionResponse>> SearchAsync(TransactionSearchRequest dto)
+        {
+            var total = await _unitOfWork.Transactions.CountSearchAsync(
+                dto.FromDate,
+                dto.ToDate,
+                dto.WalletId
+            );
+
+            var list = await _unitOfWork.Transactions.SearchAsync(
+                dto.FromDate,
+                dto.ToDate,
+                dto.WalletId,
+                dto.PageNumber,
+                dto.PageSize
+            );
+
+            var responseList = list.Select(t => new TransactionResponse(
+                t.TransactionId,
+                t.Amount,
+                t.CreatedAt,
+                t.FromWallet.Name,
+                t.ToWallet.Name,
+                t.FromWallet.Currency.Name
+            )).ToList();
+
+            return new PagedResponse<TransactionResponse>
             {
                 Success = true,
-                Data = list,
+                Data = responseList,
                 PageNumber = dto.PageNumber,
                 PageSize = dto.PageSize,
                 TotalRecords = total
             };
         }
+
+
+
     }
+}

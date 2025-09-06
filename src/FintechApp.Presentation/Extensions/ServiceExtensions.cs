@@ -14,14 +14,16 @@ namespace FintechApp.Presentation.Extensions
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IRoleRepository, RoleRepository>();
-           // services.AddScoped<ITransactionRepository, TransactionRepository>();
+            services.AddScoped<IUserWalletRepository, UserWalletRepository>();
+            
+            services.AddScoped<ITransactionRepository, TransactionRepository>();
 
             // UnitOfWork
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             // Application Services
             services.AddScoped<IUserService, UserService>();
-         //   services.AddScoped<ITransactionService, TransactionService>();
+            services.AddScoped<ITransactionService, TransactionService>();
 
             return services;
         }

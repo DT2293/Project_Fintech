@@ -31,72 +31,27 @@ namespace FintechApp.Infrastructure.Repositories
 
         public async Task<List<Transaction>> GetPagedByWalletAsync(int walletId, int pageNumber, int pageSize)
         {
-            return await _context.Transactions
-                .Where(t => t.FromWalletId == walletId || t.ToWalletId == walletId)
-                .Include(t => t.FromWallet)
-                .Include(t => t.ToWallet)
+            var query = _dbSet
+                .Include(t => t.FromWallet).ThenInclude(w => w.Currency)
+                .Include(t => t.ToWallet).ThenInclude(w => w.Currency)
+                .Where(t => t.FromWalletId == walletId || t.ToWalletId == walletId);
+
+            return await query
                 .OrderByDescending(t => t.CreatedAt)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
         }
 
-        public async Task<List<Transaction>> SearchAsync(TransactionSearchRequest dto)
+
+        public async Task<List<Transaction>> SearchAsync(DateTime? fromDate, DateTime? toDate, int? walletId, int pageNumber, int pageSize)
         {
-            var query = _context.Transactions.AsQueryable();
+            var query = _dbSet
+             .Include(t => t.FromWallet).ThenInclude(w => w.Currency)
+             .Include(t => t.ToWallet).ThenInclude(w => w.Currency)
+             .Where(t => t.FromWalletId == walletId || t.ToWalletId == walletId);
 
-            if (dto.WalletId.HasValue)
-                query = query.Where(t => t.FromWalletId == dto.WalletId.Value || t.ToWalletId == dto.WalletId.Value);
 
-            if (dto.FromDate.HasValue)
-                query = query.Where(t => t.CreatedAt >= dto.FromDate.Value);
-
-            if (dto.ToDate.HasValue)
-                query = query.Where(t => t.CreatedAt <= dto.ToDate.Value);
-
-            if (dto.MinAmount.HasValue)
-                query = query.Where(t => t.Amount >= dto.MinAmount.Value);
-
-            if (dto.MaxAmount.HasValue)
-                query = query.Where(t => t.Amount <= dto.MaxAmount.Value);
-
-            return await query
-                .Include(t => t.FromWallet)
-                .Include(t => t.ToWallet)
-                .OrderByDescending(t => t.CreatedAt)
-                .Skip((dto.PageNumber - 1) * dto.PageSize)
-                .Take(dto.PageSize)
-                .ToListAsync();
-        }
-
-        public async Task<int> CountSearchAsync(TransactionSearchRequest dto)
-        {
-            var query = _context.Transactions.AsQueryable();
-
-            if (dto.WalletId.HasValue)
-                query = query.Where(t => t.FromWalletId == dto.WalletId.Value || t.ToWalletId == dto.WalletId.Value);
-
-            if (dto.FromDate.HasValue)
-                query = query.Where(t => t.CreatedAt >= dto.FromDate.Value);
-
-            if (dto.ToDate.HasValue)
-                query = query.Where(t => t.CreatedAt <= dto.ToDate.Value);
-
-            if (dto.MinAmount.HasValue)
-                query = query.Where(t => t.Amount >= dto.MinAmount.Value);
-
-            if (dto.MaxAmount.HasValue)
-                query = query.Where(t => t.Amount <= dto.MaxAmount.Value);
-
-            return await query.CountAsync();
-        }
-
-        public async Task<List<Transaction>> SearchAsync(DateTime? fromDate, DateTime? toDate, string? walletName)
-        {
-            var query = _context.Transactions
-                .Include(t => t.FromWallet)
-                .Include(t => t.ToWallet)
-                .AsQueryable();
 
             if (fromDate.HasValue)
                 query = query.Where(t => t.CreatedAt >= fromDate.Value);
@@ -104,20 +59,19 @@ namespace FintechApp.Infrastructure.Repositories
             if (toDate.HasValue)
                 query = query.Where(t => t.CreatedAt <= toDate.Value);
 
-            if (!string.IsNullOrEmpty(walletName))
-                query = query.Where(t =>
-                    t.FromWallet.Name.Contains(walletName) ||
-                    t.ToWallet.Name.Contains(walletName)
-                );
+            if (walletId.HasValue)
+                query = query.Where(t => t.FromWalletId == walletId.Value || t.ToWalletId == walletId.Value);
 
             return await query
                 .OrderByDescending(t => t.CreatedAt)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
         }
 
-        public async Task<int> CountSearchAsync(DateTime? fromDate, DateTime? toDate, string? walletName)
+        public async Task<int> CountSearchAsync(DateTime? fromDate, DateTime? toDate, int? walletId)
         {
-            var query = _context.Transactions.AsQueryable();
+            var query = _dbSet.AsQueryable();
 
             if (fromDate.HasValue)
                 query = query.Where(t => t.CreatedAt >= fromDate.Value);
@@ -125,11 +79,8 @@ namespace FintechApp.Infrastructure.Repositories
             if (toDate.HasValue)
                 query = query.Where(t => t.CreatedAt <= toDate.Value);
 
-            if (!string.IsNullOrEmpty(walletName))
-                query = query.Where(t =>
-                    t.FromWallet.Name.Contains(walletName) ||
-                    t.ToWallet.Name.Contains(walletName)
-                );
+            if (walletId.HasValue)
+                query = query.Where(t => t.FromWalletId == walletId.Value || t.ToWalletId == walletId.Value);
 
             return await query.CountAsync();
         }

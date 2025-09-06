@@ -11,9 +11,9 @@ namespace FintechApp.Application.Interfaces
 {
     public interface ITransactionService
     {
-        Task<ApiResponse<Transaction>> CreateAsync(TransactionCreateRequest dto);
+        Task<ApiResponse<TransactionResponse>> CreateAsync(TransactionCreateRequest dto);
         Task<ApiResponse<Transaction>> GetByIdAsync(int transactionId);
-        Task<PagedResponse<Transaction>> GetByWalletPagedAsync(int walletId, int pageNumber, int pageSize);
-        Task<PagedResponse<Transaction>> SearchAsync(TransactionSearchRequest dto);
+        Task<PagedResponse<TransactionResponse>> GetByWalletPagedAsync(int walletId, int pageNumber, int pageSize);
+        Task<PagedResponse<TransactionResponse>> SearchAsync(TransactionSearchRequest dto);
     }
 }

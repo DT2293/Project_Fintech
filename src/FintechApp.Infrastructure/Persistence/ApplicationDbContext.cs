@@ -16,6 +16,8 @@ public class ApplicationDbContext : DbContext
     public DbSet<UserRole> UserRoles { get; set; } = null!;
     public DbSet<RolePermission> RolePermissions { get; set; } = null!;
     public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
+    
+    public DbSet<TransactionEntry> TransactionEntries { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -27,7 +29,7 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<Transaction>().HasKey(t => t.TransactionId);
         modelBuilder.Entity<Currency>().HasKey(c => c.CurrencyId);
         modelBuilder.Entity<RefreshToken>().HasKey(rt => rt.RefreshTokenId);
-
+        
         // Composite keys
         modelBuilder.Entity<UserRole>().HasKey(ur => new { ur.UserId, ur.RoleId });
         modelBuilder.Entity<RolePermission>().HasKey(rp => new { rp.RoleId, rp.PermissionId });
