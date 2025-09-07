@@ -19,6 +19,8 @@ public class ApplicationDbContext : DbContext
     
     public DbSet<TransactionEntry> TransactionEntries { get; set; } = null!;
 
+    public DbSet<ApiPermission> ApiPermissions { get; set; } = null!;
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

@@ -16,6 +16,8 @@ namespace FintechApp.Domain.Interfaces
         IUserWalletRepository UserWallets { get; }
         ITransactionRepository Transactions { get; }
 
+        ITransactionEntryRepository TransactionEntries { get; }
+
         Task<int> SaveChangesAsync();
         Task<IDbContextTransaction> BeginTransactionAsync();
     }

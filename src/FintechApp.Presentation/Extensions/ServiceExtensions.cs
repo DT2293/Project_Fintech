@@ -15,7 +15,9 @@ namespace FintechApp.Presentation.Extensions
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IRoleRepository, RoleRepository>();
             services.AddScoped<IUserWalletRepository, UserWalletRepository>();
-            
+            services.AddScoped<IPermissionService, PermissionRepo>();
+            services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+
             services.AddScoped<ITransactionRepository, TransactionRepository>();
 
             // UnitOfWork

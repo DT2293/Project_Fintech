@@ -18,6 +18,7 @@ namespace FintechApp.Infrastructure.Repositories
             Roles = new RoleRepository(_context);
             UserWallets = new UserWalletRepository(_context);
             Transactions = new TransactionRepository(_context);
+            TransactionEntries = new TransactionEntryRepository(_context);
         }
 
         public IUserRepository Users { get; }
@@ -25,6 +26,9 @@ namespace FintechApp.Infrastructure.Repositories
 
         public IUserWalletRepository UserWallets { get; }
         public ITransactionRepository Transactions { get; }
+
+        public ITransactionEntryRepository TransactionEntries { get; } 
+
         public async Task<int> SaveChangesAsync()
         {
             return await _context.SaveChangesAsync();

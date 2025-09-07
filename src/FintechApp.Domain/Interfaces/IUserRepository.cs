@@ -13,9 +13,10 @@ namespace FintechApp.Domain.Interfaces
         Task<User?> GetWithRolesAsync(int userId);
         Task<User?> GetByIdWithRolesAsync(int id);
         Task<List<User>> SearchByNameAsync(string name);
+        Task<User?> GetUserByIdRepoAsync(int id);
         Task<int> CountAsync();
         Task<int> CountByNameAsync(string name);
-        Task<List<User>> GetPagedAsync(int pageNumber, int pageSize);
+        Task<List<User>> GetAllUserAsync(int pageNumber, int pageSize);
         Task<List<User>> SearchByNamePagedAsync(string name, int pageNumber, int pageSize);
     }
 }

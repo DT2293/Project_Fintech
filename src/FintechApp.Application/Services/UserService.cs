@@ -13,10 +13,38 @@ namespace FintechApp.Application.Services
     public class UserService : IUserService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IJwtTokenGenerator _jwtTokenGenerator;
 
-        public UserService(IUnitOfWork unitOfWork)
+        public UserService(IUnitOfWork unitOfWork, IJwtTokenGenerator jwtTokenGenerator)
         {
             _unitOfWork = unitOfWork;
+            _jwtTokenGenerator = jwtTokenGenerator;
+        }
+        public async Task<ApiResponse<LoginResponseDto>> LoginAsync(UserLoginDto dto)
+        {
+            var user = await _unitOfWork.Users.GetByEmailAsync(dto.Email);
+            if (user == null)
+                return ApiResponse<LoginResponseDto>.Fail("User not found");
+
+            if (!VerifyPassword(dto.Password, user.PasswordHash))
+                return ApiResponse<LoginResponseDto>.Fail("Invalid password");
+
+            if (!user.IsActive)
+                return ApiResponse<LoginResponseDto>.Fail("User is inactive");
+            var userWithRoles = await _unitOfWork.Users.GetWithRolesAsync(user.UserId);
+            var roleName = userWithRoles.UserRoles.FirstOrDefault()?.Role.Name ?? string.Empty;
+
+            string token = _jwtTokenGenerator.GenerateToken(user);
+
+            var response = new LoginResponseDto(
+                UserId: user.UserId,
+                UserName: user.UserName,
+                Email: user.Email,
+                Token: token,
+                RoleName: roleName
+            );
+
+            return ApiResponse<LoginResponseDto>.SuccessResponse(response, "Login successful");
         }
 
         public async Task<ApiResponse<User>> RegisterAsync(UserCreateRequest dto)
@@ -64,15 +92,34 @@ namespace FintechApp.Application.Services
 
             return ApiResponse<bool>.SuccessResponse(true, "User deleted successfully");
         }
-        public async Task<PagedResponse<User>> GetAllPagedAsync(int pageNumber, int pageSize)
+        public async Task<PagedResponse<UserDto>> GetAllUserServiceAsync(int pageNumber, int pageSize)
         {
             var totalRecords = await _unitOfWork.Users.CountAsync();
-            var users = await _unitOfWork.Users.GetPagedAsync(pageNumber, pageSize);
+            var users = await _unitOfWork.Users.GetAllUserAsync(pageNumber, pageSize);
 
-            return new PagedResponse<User>
+            var userDtos = users.Select(u => new UserDto(
+                u.UserId,
+                u.UserName,
+                u.Email,
+                u.IsActive,
+                u.CreatedAt,
+                u.UpdatedAt,
+                u.Wallets.Select(w => new WalletDto(
+                    w.WalletId,
+                    w.Name,
+                    w.Balance,
+                    w.Currency?.Name ?? string.Empty
+                )).ToList(),
+                u.UserRoles.Select(ur => new RoleDto(
+                    ur.RoleId,
+                    ur.Role?.Name ?? string.Empty
+                )).ToList()
+            )).ToList();
+
+            return new PagedResponse<UserDto>
             {
                 Success = true,
-                Data = users,
+                Data = userDtos,
                 PageNumber = pageNumber,
                 PageSize = pageSize,
                 TotalRecords = totalRecords,
@@ -80,15 +127,34 @@ namespace FintechApp.Application.Services
             };
         }
 
-        public async Task<PagedResponse<User>> SearchByNamePagedAsync(string name, int pageNumber, int pageSize)
+        public async Task<PagedResponse<UserDto>> SearchByNamePagedAsync(string name, int pageNumber, int pageSize)
         {
             var totalRecords = await _unitOfWork.Users.CountByNameAsync(name);
             var users = await _unitOfWork.Users.SearchByNamePagedAsync(name, pageNumber, pageSize);
 
-            return new PagedResponse<User>
+            var userDtos = users.Select(u => new UserDto(
+                u.UserId,
+                u.UserName,
+                u.Email,
+                u.IsActive,
+                u.CreatedAt,
+                u.UpdatedAt,
+                u.Wallets.Select(w => new WalletDto(
+                    w.WalletId,
+                    w.Name,
+                    w.Balance,
+                    w.Currency?.Name ?? string.Empty
+                )).ToList(),
+                u.UserRoles.Select(ur => new RoleDto(
+                    ur.RoleId,
+                    ur.Role?.Name ?? string.Empty
+                )).ToList()
+            )).ToList();
+
+            return new PagedResponse<UserDto>
             {
                 Success = true,
-                Data = users,
+                Data = userDtos,
                 PageNumber = pageNumber,
                 PageSize = pageSize,
                 TotalRecords = totalRecords,
@@ -96,25 +162,34 @@ namespace FintechApp.Application.Services
             };
         }
 
-        public async Task<ApiResponse<User>> GetByIdAsync(int userId)
+
+        public async Task<ApiResponse<UserDto>> GetUserByIdServiceAsync(int userId)
         {
-            var user = await _unitOfWork.Users.GetByIdAsync(userId);
+            var user = await _unitOfWork.Users.GetUserByIdRepoAsync(userId);
+
             if (user == null)
-                return ApiResponse<User>.Fail("User not found");
+                return ApiResponse<UserDto>.Fail("User not found");
 
-            return ApiResponse<User>.SuccessResponse(user);
-        }
+            var userDto = new UserDto(
+                user.UserId,
+                user.UserName,
+                user.Email,
+                user.IsActive,
+                user.CreatedAt,
+                user.UpdatedAt,
+                user.Wallets.Select(w => new WalletDto(
+                    w.WalletId,
+                    w.Name,
+                    w.Balance,
+                    w.Currency?.Name ?? string.Empty
+                )).ToList(),
+                user.UserRoles.Select(ur => new RoleDto(
+                    ur.RoleId,
+                    ur.Role?.Name ?? string.Empty
+                )).ToList()
+            );
 
-        public async Task<ApiResponse<List<User>>> GetAllAsync()
-        {
-            var users = await _unitOfWork.Users.GetAllAsync();
-            return ApiResponse<List<User>>.SuccessResponse(users);
-        }
-
-        public async Task<ApiResponse<List<User>>> SearchByNameAsync(string name)
-        {
-            var users = await _unitOfWork.Users.SearchByNameAsync(name);
-            return ApiResponse<List<User>>.SuccessResponse(users);
+            return ApiResponse<UserDto>.SuccessResponse(userDto, "User retrieved successfully");
         }
 
         public async Task<ApiResponse<bool>> AssignRoleAsync(int userId, int roleId)
@@ -149,5 +224,7 @@ namespace FintechApp.Application.Services
         // Helper hash
         private string HashPassword(string password) => BCrypt.Net.BCrypt.HashPassword(password);
         private bool VerifyPassword(string password, string hash) => BCrypt.Net.BCrypt.Verify(password, hash);
+
+       
     }
 }

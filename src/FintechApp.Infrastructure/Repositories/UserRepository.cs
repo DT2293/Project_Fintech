@@ -51,27 +51,54 @@ namespace FintechApp.Infrastructure.Repositories
         {
             return await _dbSet.CountAsync(u => u.UserName.Contains(name));
         }
-           
 
-        public async Task<List<User>> GetPagedAsync(int pageNumber, int pageSize)
+
+        public async Task<List<User>> GetAllUserAsync(int pageNumber, int pageSize)
         {
-           return await _dbSet
+            return await _dbSet
+                .Include(u => u.Wallets)
+                    .ThenInclude(w => w.Currency)  
+                .Include(u => u.UserRoles)
+                    .ThenInclude(ur => ur.Role)     
                 .OrderBy(u => u.UserId)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
-
         }
+
 
         public async Task<List<User>> SearchByNamePagedAsync(string name, int pageNumber, int pageSize)
         {
             return await _dbSet
+                .Include(u => u.Wallets)                
+                    .ThenInclude(w => w.Currency)
+                .Include(u => u.UserRoles)             
+                    .ThenInclude(ur => ur.Role)
                .Where(u => u.UserName.Contains(name))
                .OrderBy(u => u.UserId)
                .Skip((pageNumber - 1) * pageSize)
                .Take(pageSize)
                .ToListAsync();
         }
-          
+
+        //public async Task<User?> GetUserByIdRepoAsync(int id)
+        //{
+        //    return await _dbSet
+        //        .Include(u => u.Wallets)
+        //            .ThenInclude(w => w.Currency)
+        //        .Include(u => u.UserRoles)
+        //            .ThenInclude(ur => ur.Role)
+        //        .FirstOrDefaultAsync(u => u.UserId == id);
+        //}
+
+        public async Task<User?> GetUserByIdRepoAsync(int id)
+        {
+            return await _dbSet
+               .Include(u => u.Wallets)
+                   .ThenInclude(w => w.Currency)
+               .Include(u => u.UserRoles)
+                   .ThenInclude(ur => ur.Role)
+               .FirstOrDefaultAsync(u => u.UserId == id);
+        }
     }
 }

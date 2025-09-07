@@ -22,10 +22,20 @@ namespace FintechApp.Presentation.Controller
             if (result.Success) return Ok(result);
             return BadRequest(result);
         }
-        [HttpGet]
-        public async Task<IActionResult> GetAllPaged([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] UserLoginDto dto)
         {
-            var result = await _userService.GetAllPagedAsync(pageNumber, pageSize);
+            var result = await _userService.LoginAsync(dto);
+            if (!result.Success)
+                return Unauthorized(result);
+
+            return Ok(result);
+        }
+        [HttpGet]
+        public async Task<IActionResult> GetAllUer([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        {
+            var result = await _userService.GetAllUserServiceAsync(pageNumber, pageSize);
             if (result.Success) return Ok(result);
             return BadRequest(result);
         }
@@ -33,7 +43,7 @@ namespace FintechApp.Presentation.Controller
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var result = await _userService.GetByIdAsync(id);
+            var result = await _userService.GetUserByIdServiceAsync(id);
             if (result.Success) return Ok(result);
             return NotFound(result);
         }

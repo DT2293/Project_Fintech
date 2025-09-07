@@ -16,17 +16,19 @@ namespace FintechApp.Presentation.Controller
             _service = service;
         }
 
+        // api service for transfer to demo transaction function 
         [HttpPost]
-        public async Task<IActionResult> Create(TransactionCreateRequest dto)
+        public async Task<IActionResult> CreateTransaction(TransactionCreateRequest dto)
         {
-            var result = await _service.CreateAsync(dto);
+            var result = await _service.CreateTransactionAsync(dto);
             return result.Success ? Ok(result) : BadRequest(result);
         }
 
+
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<IActionResult> GetTransactionById(int id)
         {
-            var result = await _service.GetByIdAsync(id);
+            var result = await _service.GetTransactionByIdAsync(id);
             return result.Success ? Ok(result) : NotFound(result);
         }
 

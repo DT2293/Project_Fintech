@@ -10,4 +10,34 @@ namespace FintechApp.Application.DTOs
     public record UserUpdateRequest(int UserId, string UserName, string Email, bool IsActive);
     public record UserResponse(int UserId, string UserName, string Email, bool IsActive);
     public record UserLoginDto(string Email, string Password);
+    public record LoginResponseDto
+    (
+         int UserId,
+         string UserName,
+         string Email,
+         string Token,
+         string RoleName
+    );
+    public record RoleDto(
+        int RoleId,
+        string RoleName
+    );
+    public record WalletDto(
+        int WalletId,
+        string Name,
+        decimal Balance,
+        string CurrencyName
+    );
+
+    public record UserDto(
+        int UserId,
+        string UserName,
+        string Email,
+        bool IsActive,
+        DateTime CreatedAt,
+        DateTime UpdatedAt,
+        List<WalletDto> Wallets,
+        List<RoleDto> Roles
+    );
+
 }

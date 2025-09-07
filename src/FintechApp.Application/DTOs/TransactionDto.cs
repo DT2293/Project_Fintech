@@ -25,6 +25,16 @@ namespace FintechApp.Application.DTOs
          string CurrencyName 
      );
 
+    public record TransactionInfoDto(
+     int TransactionId,
+     decimal Amount,
+     DateTime CreatedAt,
+     string FromWalletName,
+     string ToWalletName,
+     string CurrencyName,
+     string FromUserName,
+     string ToUserName
+ );
 
 
     public record WalletInfo(int WalletId, string Name, string CurrencyCode);

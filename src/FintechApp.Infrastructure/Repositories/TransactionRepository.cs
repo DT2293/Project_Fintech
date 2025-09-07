@@ -85,5 +85,16 @@ namespace FintechApp.Infrastructure.Repositories
             return await query.CountAsync();
         }
 
+        public async Task<Transaction?> GetTransactionById(int id)
+        {
+            return await _dbSet
+            .Include(t => t.FromWallet)
+                .ThenInclude(w => w.User)
+            .Include(t => t.ToWallet)
+                .ThenInclude(w => w.User)
+            .Include(t => t.FromWallet.Currency)
+            .Include(t => t.ToWallet.Currency)
+            .FirstOrDefaultAsync(t => t.TransactionId == id);
+        }
     }
 }
