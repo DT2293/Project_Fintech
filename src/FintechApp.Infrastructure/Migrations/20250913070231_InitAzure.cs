@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FintechApp.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class init : Migration
+    public partial class InitAzure : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -70,6 +70,27 @@ namespace FintechApp.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Users", x => x.UserId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ApiPermissions",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Controller = table.Column<string>(type: "text", nullable: false),
+                    Action = table.Column<string>(type: "text", nullable: false),
+                    PermissionId = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ApiPermissions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ApiPermissions_Permissions_PermissionId",
+                        column: x => x.PermissionId,
+                        principalTable: "Permissions",
+                        principalColumn: "PermissionId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -180,7 +201,9 @@ namespace FintechApp.Infrastructure.Migrations
                     Amount = table.Column<decimal>(type: "numeric", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     FromWalletId = table.Column<int>(type: "integer", nullable: false),
-                    ToWalletId = table.Column<int>(type: "integer", nullable: false)
+                    ToWalletId = table.Column<int>(type: "integer", nullable: false),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    Type = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -199,6 +222,39 @@ namespace FintechApp.Infrastructure.Migrations
                         onDelete: ReferentialAction.Restrict);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "TransactionEntries",
+                columns: table => new
+                {
+                    EntryId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    TransactionId = table.Column<int>(type: "integer", nullable: false),
+                    WalletId = table.Column<int>(type: "integer", nullable: false),
+                    Amount = table.Column<decimal>(type: "numeric", nullable: false),
+                    EntryType = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TransactionEntries", x => x.EntryId);
+                    table.ForeignKey(
+                        name: "FK_TransactionEntries_Transactions_TransactionId",
+                        column: x => x.TransactionId,
+                        principalTable: "Transactions",
+                        principalColumn: "TransactionId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_TransactionEntries_UserWallets_WalletId",
+                        column: x => x.WalletId,
+                        principalTable: "UserWallets",
+                        principalColumn: "WalletId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ApiPermissions_PermissionId",
+                table: "ApiPermissions",
+                column: "PermissionId");
+
             migrationBuilder.CreateIndex(
                 name: "IX_RefreshTokens_UserId",
                 table: "RefreshTokens",
@@ -208,6 +264,16 @@ namespace FintechApp.Infrastructure.Migrations
                 name: "IX_RolePermissions_PermissionId",
                 table: "RolePermissions",
                 column: "PermissionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TransactionEntries_TransactionId",
+                table: "TransactionEntries",
+                column: "TransactionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TransactionEntries_WalletId",
+                table: "TransactionEntries",
+                column: "WalletId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Transactions_FromWalletId",
@@ -239,13 +305,16 @@ namespace FintechApp.Infrastructure.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "ApiPermissions");
+
+            migrationBuilder.DropTable(
                 name: "RefreshTokens");
 
             migrationBuilder.DropTable(
                 name: "RolePermissions");
 
             migrationBuilder.DropTable(
-                name: "Transactions");
+                name: "TransactionEntries");
 
             migrationBuilder.DropTable(
                 name: "UserRoles");
@@ -254,10 +323,13 @@ namespace FintechApp.Infrastructure.Migrations
                 name: "Permissions");
 
             migrationBuilder.DropTable(
-                name: "UserWallets");
+                name: "Transactions");
 
             migrationBuilder.DropTable(
                 name: "Roles");
+
+            migrationBuilder.DropTable(
+                name: "UserWallets");
 
             migrationBuilder.DropTable(
                 name: "Currencies");

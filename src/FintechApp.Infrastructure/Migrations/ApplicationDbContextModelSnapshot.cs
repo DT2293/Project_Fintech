@@ -44,7 +44,7 @@ namespace FintechApp.Infrastructure.Migrations
 
                     b.HasIndex("PermissionId");
 
-                    b.ToTable("ApiPermissions");
+                    b.ToTable("ApiPermissions", (string)null);
                 });
 
             modelBuilder.Entity("FintechApp.Domain.Entities.Currency", b =>
@@ -65,7 +65,7 @@ namespace FintechApp.Infrastructure.Migrations
 
                     b.HasKey("CurrencyId");
 
-                    b.ToTable("Currencies");
+                    b.ToTable("Currencies", (string)null);
                 });
 
             modelBuilder.Entity("FintechApp.Domain.Entities.Permission", b =>
@@ -86,7 +86,7 @@ namespace FintechApp.Infrastructure.Migrations
 
                     b.HasKey("PermissionId");
 
-                    b.ToTable("Permissions");
+                    b.ToTable("Permissions", (string)null);
                 });
 
             modelBuilder.Entity("FintechApp.Domain.Entities.RefreshToken", b =>
@@ -117,7 +117,7 @@ namespace FintechApp.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("RefreshTokens");
+                    b.ToTable("RefreshTokens", (string)null);
                 });
 
             modelBuilder.Entity("FintechApp.Domain.Entities.Role", b =>
@@ -138,7 +138,7 @@ namespace FintechApp.Infrastructure.Migrations
 
                     b.HasKey("RoleId");
 
-                    b.ToTable("Roles");
+                    b.ToTable("Roles", (string)null);
                 });
 
             modelBuilder.Entity("FintechApp.Domain.Entities.RolePermission", b =>
@@ -153,7 +153,7 @@ namespace FintechApp.Infrastructure.Migrations
 
                     b.HasIndex("PermissionId");
 
-                    b.ToTable("RolePermissions");
+                    b.ToTable("RolePermissions", (string)null);
                 });
 
             modelBuilder.Entity("FintechApp.Domain.Entities.Transaction", b =>
@@ -188,7 +188,7 @@ namespace FintechApp.Infrastructure.Migrations
 
                     b.HasIndex("ToWalletId");
 
-                    b.ToTable("Transactions");
+                    b.ToTable("Transactions", (string)null);
                 });
 
             modelBuilder.Entity("FintechApp.Domain.Entities.TransactionEntry", b =>
@@ -217,7 +217,7 @@ namespace FintechApp.Infrastructure.Migrations
 
                     b.HasIndex("WalletId");
 
-                    b.ToTable("TransactionEntries");
+                    b.ToTable("TransactionEntries", (string)null);
                 });
 
             modelBuilder.Entity("FintechApp.Domain.Entities.User", b =>
@@ -251,7 +251,7 @@ namespace FintechApp.Infrastructure.Migrations
 
                     b.HasKey("UserId");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("FintechApp.Domain.Entities.UserRole", b =>
@@ -266,7 +266,7 @@ namespace FintechApp.Infrastructure.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("UserRoles");
+                    b.ToTable("UserRoles", (string)null);
                 });
 
             modelBuilder.Entity("FintechApp.Domain.Entities.UserWallet", b =>
@@ -296,7 +296,7 @@ namespace FintechApp.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserWallets");
+                    b.ToTable("UserWallets", (string)null);
                 });
 
             modelBuilder.Entity("FintechApp.Domain.Entities.ApiPermission", b =>
