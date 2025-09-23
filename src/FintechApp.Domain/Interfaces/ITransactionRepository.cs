@@ -9,6 +9,7 @@ namespace FintechApp.Domain.Interfaces
 {
     public interface ITransactionRepository : IRepository<Transaction>
     {
+        IQueryable<Transaction> Query();
         Task<List<Transaction>> GetByWalletIdAsync(int walletId);
         Task<int> CountByWalletIdAsync(int walletId);
         Task<List<Transaction>> GetPagedByWalletAsync(int walletId, int pageNumber, int pageSize);

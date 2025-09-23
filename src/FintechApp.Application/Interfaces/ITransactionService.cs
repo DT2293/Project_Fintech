@@ -15,5 +15,6 @@ namespace FintechApp.Application.Interfaces
         Task<ApiResponse<TransactionInfoDto>> GetTransactionByIdAsync(int transactionId);
         Task<PagedResponse<TransactionResponse>> GetByWalletPagedAsync(int walletId, int pageNumber, int pageSize);
         Task<PagedResponse<TransactionResponse>> SearchAsync(TransactionSearchRequest dto);
+        Task<PagedResponse<TransactionResponse>> GetMyWalletTransaction(int userId, int walletId, int pageNumber, int pageSize);
     }
 }

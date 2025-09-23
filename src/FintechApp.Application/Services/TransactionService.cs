@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using FintechApp.Application.Common;
@@ -8,23 +9,33 @@ using FintechApp.Application.DTOs;
 using FintechApp.Application.Interfaces;
 using FintechApp.Domain.Entities;
 using FintechApp.Domain.Interfaces;
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 
 namespace FintechApp.Application.Services
 {
     public class TransactionService : ITransactionService
     {
         private readonly IUnitOfWork _unitOfWork;
-
-        public TransactionService(IUnitOfWork unitOfWork)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        
+        public TransactionService(IUnitOfWork unitOfWork, IHttpContextAccessor httpContextAccessor )
         {
             _unitOfWork = unitOfWork;
+            _httpContextAccessor = httpContextAccessor; 
         }
 
         public async Task<ApiResponse<TransactionResponse>> CreateTransactionAsync(TransactionCreateRequest dto)
         {
+            var userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+                return ApiResponse<TransactionResponse>.Fail("Unauthorized");
+
             // 1. Lấy ví từ DB
             var fromWallet = await _unitOfWork.UserWallets.GetWalletWithCurrencyAsync(dto.FromWalletId);
             var toWallet = await _unitOfWork.UserWallets.GetWalletWithCurrencyAsync(dto.ToWalletId);
+            if (fromWallet.UserId.ToString() != userId)
+                return ApiResponse<TransactionResponse>.Fail("You are not the owner of this wallet");
 
             if (fromWallet == null || toWallet == null)
                 return ApiResponse<TransactionResponse>.Fail("Wallet not found");
@@ -184,6 +195,54 @@ namespace FintechApp.Application.Services
             };
         }
 
-        
+        public async Task<PagedResponse<TransactionResponse>> GetMyWalletTransaction(int userId, int walletId, int pageNumber, int pageSize)
+        {
+            // 1. Kiểm tra ownership: wallet có thuộc user không?
+            var wallet = await _unitOfWork.UserWallets.GetWalletByIdAsync(walletId);
+
+            if (wallet == null || wallet.UserId != userId)
+            {
+                return new PagedResponse<TransactionResponse>
+                {
+                    Success = false,
+                    Message = "You are not the owner of this wallet",
+                    Data = new List<TransactionResponse>(),
+                    PageNumber = pageNumber,
+                    PageSize = pageSize,
+                    TotalRecords = 0
+                };
+            }
+
+            var totalRecords = await _unitOfWork.Transactions.CountByWalletIdAsync(walletId);
+            var query = _unitOfWork.Transactions.Query()
+                .Where(t => t.FromWalletId == walletId || t.ToWalletId == walletId);
+
+            var transactions = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            // 3. Map sang response DTO
+            var response = transactions.Select(t => new TransactionResponse(
+                t.TransactionId,
+                t.Amount,
+                t.CreatedAt,
+                t.FromWallet?.Name,
+                t.ToWallet?.Name,
+                t.FromWallet?.Currency?.Name
+            )).ToList();
+
+            // 4. Trả về PagedResponse
+            return new PagedResponse<TransactionResponse>
+            {
+                Success = true,
+                Message = "Transactions retrieved successfully",
+                Data = response,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalRecords = totalRecords
+            };
+        }
     }
 }
+    

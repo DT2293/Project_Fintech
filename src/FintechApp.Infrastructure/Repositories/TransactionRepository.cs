@@ -96,5 +96,13 @@ namespace FintechApp.Infrastructure.Repositories
             .Include(t => t.ToWallet.Currency)
             .FirstOrDefaultAsync(t => t.TransactionId == id);
         }
+        public IQueryable<Transaction> Query()
+        {
+            return _context.Transactions
+                .Include(t => t.FromWallet).ThenInclude(w => w.Currency)
+                .Include(t => t.ToWallet).ThenInclude(w => w.Currency)
+                .AsQueryable();
+        }
+
     }
 }

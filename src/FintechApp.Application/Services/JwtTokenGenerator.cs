@@ -23,12 +23,30 @@ namespace FintechApp.Application.Services
 
         public string GenerateToken(User user)
         {
-            var claims = new[]
-            {
-            new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
-            new Claim(ClaimTypes.Email, user.Email),
-            new Claim(ClaimTypes.Name, user.UserName)
+            var claims = new List<Claim>
+        {
+            new Claim(JwtRegisteredClaimNames.Sub, user.UserId.ToString()),
+            new Claim(JwtRegisteredClaimNames.Email, user.Email),
+            new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName),
         };
+
+            // Roles
+            foreach (var role in user.UserRoles.Select(ur => ur.Role))
+            {
+                claims.Add(new Claim("role", role.Name));
+            }
+
+
+
+            // Permissions
+            var permissions = user.UserRoles
+                .SelectMany(ur => ur.Role.RolePermissions)
+                .Select(rp => rp.Permission.Name)
+                .Distinct();
+            foreach (var perm in permissions)
+            {
+                claims.Add(new Claim("permissions", perm));
+            }
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -44,4 +62,5 @@ namespace FintechApp.Application.Services
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
+
 }

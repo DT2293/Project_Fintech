@@ -15,9 +15,11 @@ services:
     build:
       context: .
       dockerfile: src/FintechApp.Presentation/Dockerfile
+    image: fintechacr2025.azurecr.io/fintech-api:latest
     environment:
       ConnectionStrings__DefaultConnection: "Host=fintechdb2025.postgres.database.azure.com;Port=5432;Database=postgres;Username=postgres;Password=Fintech2025!Db12345;Ssl Mode=Require"
     ports:
       - "7118:80"
     depends_on:
       - fintech-db
+  

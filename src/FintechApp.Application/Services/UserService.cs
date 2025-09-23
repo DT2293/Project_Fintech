@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using FintechApp.Application.Common;
 using FintechApp.Application.DTOs;
@@ -92,8 +93,15 @@ namespace FintechApp.Application.Services
 
             return ApiResponse<bool>.SuccessResponse(true, "User deleted successfully");
         }
-        public async Task<PagedResponse<UserDto>> GetAllUserServiceAsync(int pageNumber, int pageSize)
+        public async Task<ApiResponse<List<UserDto>>> GetAllUserServiceAsync(int pageNumber,int pageSize,ClaimsPrincipal userClaims)
         {
+            // 1. Check quyền
+            if (!userClaims.IsInRole("Admin")) // hoặc check Permission khác
+            {
+                return ApiResponse<List<UserDto>>.Fail("Bạn không có quyền truy cập");
+            }
+
+            // 2. Nếu có quyền thì tiếp tục
             var totalRecords = await _unitOfWork.Users.CountAsync();
             var users = await _unitOfWork.Users.GetAllUserAsync(pageNumber, pageSize);
 
@@ -116,6 +124,7 @@ namespace FintechApp.Application.Services
                 )).ToList()
             )).ToList();
 
+            // 3. Trả về PagedResponse
             return new PagedResponse<UserDto>
             {
                 Success = true,
@@ -126,6 +135,7 @@ namespace FintechApp.Application.Services
                 Message = "Users retrieved successfully"
             };
         }
+
 
         public async Task<PagedResponse<UserDto>> SearchByNamePagedAsync(string name, int pageNumber, int pageSize)
         {

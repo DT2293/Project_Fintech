@@ -22,12 +22,6 @@ namespace FintechApp.Application.DTOs
         int RoleId,
         string RoleName
     );
-    public record WalletDto(
-        int WalletId,
-        string Name,
-        decimal Balance,
-        string CurrencyName
-    );
 
     public record UserDto(
         int UserId,

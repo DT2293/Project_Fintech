@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using FintechApp.Application.Common;
@@ -19,7 +20,10 @@ namespace FintechApp.Application.Interfaces
         Task<ApiResponse<UserDto>> GetUserByIdServiceAsync(int userId);
         Task<ApiResponse<User>> UpdateAsync(int userId, UserUpdateRequest dto);
         Task<ApiResponse<bool>> DeleteAsync(int userId);
-        Task<PagedResponse<UserDto>> GetAllUserServiceAsync(int pageNumber, int pageSize);
+        Task<ApiResponse<List<UserDto>>> GetAllUserServiceAsync(
+        int pageNumber,
+        int pageSize,
+        ClaimsPrincipal userClaims);
         Task<PagedResponse<UserDto>> SearchByNamePagedAsync(string name, int pageNumber, int pageSize);
         // Role management
         Task<ApiResponse<bool>> AssignRoleAsync(int userId, int roleId);
