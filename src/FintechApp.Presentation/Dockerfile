@@ -33,11 +33,3 @@ COPY --from=build /app/publish .
 ENTRYPOINT ["dotnet", "FintechApp.Presentation.dll"]
 
 
-
-# FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
-# WORKDIR /app
-# ENV ASPNETCORE_URLS=http://+:80
-# COPY src/FintechApp.Presentation/bin/Release/net9.0/publish/ .
-# COPY src/FintechApp.Presentation/bin/Release/net9.0/publish/FintechApp.Presentation.xml .
-
-# ENTRYPOINT ["dotnet", "FintechApp.Presentation.dll"]
