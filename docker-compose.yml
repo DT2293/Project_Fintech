@@ -1,13 +1,12 @@
 version: '3.9'
-
 services:
   fintech-db:
     image: postgres:15
     container_name: fintech-db
     environment:
-      POSTGRES_DB: fintech
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: sa
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
 
@@ -17,9 +16,8 @@ services:
       dockerfile: src/FintechApp.Presentation/Dockerfile
     image: fintechacr2025.azurecr.io/fintech-api:latest
     environment:
-      ConnectionStrings__DefaultConnection: "Host=fintechdb2025.postgres.database.azure.com;Port=5432;Database=postgres;Username=postgres;Password=Fintech2025!Db12345;Ssl Mode=Require"
+      ConnectionStrings__DefaultConnection: ${CONNECTION_STRING}
     ports:
       - "7118:80"
     depends_on:
       - fintech-db
-  
