@@ -18,13 +18,15 @@ The goal is to develop a financial management system including wallet services, 
 
 ## 📂 Project Structure
 
-```bash
-Project_Fintech/
-├── src/                          # Source code
-│   ├── FintechApp.API/           # API layer
-│   ├── FintechApp.Application/   # Application layer
-│   ├── FintechApp.Domain/        # Domain layer
-│   └── FintechApp.Infrastructure/# Infrastructure layer
-├── docker-compose.yml            # Docker configuration
-├── FintechApp.sln                # Solution file
-└── README.md
+```mermaid
+%%{init: {'theme':'neutral'}}%%
+flowchart TD
+    A[Project_Fintech] --> B[src]
+    B --> C[FintechApp.Presentation<br/>API layer]
+    B --> D[FintechApp.Application<br/>Application layer]
+    B --> E[FintechApp.Domain<br/>Domain layer]
+    B --> F[FintechApp.Infrastructure<br/>Infrastructure layer]
+    A --> G[docker-compose.yml]
+    A --> H[FintechApp.sln]
+    A --> I[README.md]
+
