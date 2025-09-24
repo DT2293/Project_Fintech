@@ -19,7 +19,6 @@ The goal is to develop a financial management system including wallet services, 
 ## 📂 Project Structure
 
 ```mermaid
-%%{init: {'theme':'neutral'}}%%
 flowchart TD
     A[Project_Fintech] --> B[src]
     B --> C[FintechApp.Presentation<br/>API layer]
@@ -29,4 +28,3 @@ flowchart TD
     A --> G[docker-compose.yml]
     A --> H[FintechApp.sln]
     A --> I[README.md]
-
