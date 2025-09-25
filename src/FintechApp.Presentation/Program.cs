@@ -20,7 +20,7 @@ var connectionString =
     $"Port={Environment.GetEnvironmentVariable("DB_PORT") ?? "5432"};" +
     $"Database={Environment.GetEnvironmentVariable("DB_NAME") ?? "fintech"};" +
     $"Username={Environment.GetEnvironmentVariable("DB_USER") ?? "postgres"};" +
-    $"Password={Environment.GetEnvironmentVariable("DB_PASSWORD") ?? "sa"};" +
+    $"Password={Environment.GetEnvironmentVariable("DB_PASSWORD") ?? " "};" +
     $"Ssl Mode={Environment.GetEnvironmentVariable("DB_SSL_MODE") ?? "Disable"};" +
     $"Trust Server Certificate={Environment.GetEnvironmentVariable("DB_TRUST_SERVER_CERT") ?? "true"}";
 

@@ -20,6 +20,8 @@ namespace FintechApp.Domain.Entities
         public ICollection<UserWallet> Wallets { get; set; } = new List<UserWallet>();
         public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
         public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
+        public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+
 
     }
 }
