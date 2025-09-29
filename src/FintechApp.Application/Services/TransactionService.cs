@@ -31,7 +31,6 @@ namespace FintechApp.Application.Services
             if (userId == null)
                 return ApiResponse<TransactionResponse>.Fail("Unauthorized");
 
-            // 1. Lấy ví từ DB
             var fromWallet = await _unitOfWork.UserWallets.GetWalletWithCurrencyAsync(dto.FromWalletId);
             var toWallet = await _unitOfWork.UserWallets.GetWalletWithCurrencyAsync(dto.ToWalletId);
             if (fromWallet.UserId.ToString() != userId)
@@ -67,7 +66,6 @@ namespace FintechApp.Application.Services
                 await _unitOfWork.Transactions.AddAsync(entity);
                 await _unitOfWork.SaveChangesAsync(); 
 
-                // from entry
                 var fromEntry = new TransactionEntry
                 {
                     TransactionId = entity.TransactionId,
@@ -75,7 +73,7 @@ namespace FintechApp.Application.Services
                     Amount = dto.Amount,
                     EntryType = EntryType.Debit
                 };
-                // to entry
+
                 var toEntry = new TransactionEntry
                 {
                     TransactionId = entity.TransactionId,
@@ -197,7 +195,7 @@ namespace FintechApp.Application.Services
 
         public async Task<PagedResponse<TransactionResponse>> GetMyWalletTransaction(int userId, int walletId, int pageNumber, int pageSize)
         {
-            // 1. Kiểm tra ownership: wallet có thuộc user không?
+
             var wallet = await _unitOfWork.UserWallets.GetWalletByIdAsync(walletId);
 
             if (wallet == null || wallet.UserId != userId)
@@ -221,8 +219,6 @@ namespace FintechApp.Application.Services
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
-
-            // 3. Map sang response DTO
             var response = transactions.Select(t => new TransactionResponse(
                 t.TransactionId,
                 t.Amount,
@@ -232,7 +228,6 @@ namespace FintechApp.Application.Services
                 t.FromWallet?.Currency?.Name
             )).ToList();
 
-            // 4. Trả về PagedResponse
             return new PagedResponse<TransactionResponse>
             {
                 Success = true,

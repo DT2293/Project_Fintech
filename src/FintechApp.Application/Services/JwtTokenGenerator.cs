@@ -29,13 +29,11 @@ namespace FintechApp.Application.Services
                 new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName),
             };
 
-            // Roles
             foreach (var role in user.UserRoles.Select(ur => ur.Role))
             {
                 claims.Add(new Claim(ClaimTypes.Role, role.Name));
             }
 
-            // Permissions
             var permissions = user.UserRoles
                 .SelectMany(ur => ur.Role.RolePermissions)
                 .Select(rp => rp.Permission.Name)
@@ -46,7 +44,6 @@ namespace FintechApp.Application.Services
                 claims.Add(new Claim("permissions", perm));
             }
 
-            // Lấy key từ ENV trước, nếu không có thì lấy từ config
             var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY") ?? _config["Jwt:Key"];
             var jwtIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER") ?? _config["Jwt:Issuer"];
             var jwtAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE") ?? _config["Jwt:Audience"];

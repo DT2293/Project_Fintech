@@ -2,6 +2,7 @@
 using FintechApp.Application.Services;
 using FintechApp.Domain.Interfaces;
 using FintechApp.Infrastructure.Repositories;
+using FintechApp.Presentation.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,6 +22,7 @@ namespace FintechApp.Presentation.Extensions
             services.AddScoped<IApiPermissionRepository, ApiPermissionRepository>();
             services.AddScoped<IAuthorizationHandler, ApiPermissionHandler>();
             services.AddScoped<ITransactionRepository, TransactionRepository>();
+            services.AddScoped<INotificationRepository, NotificationRepository>();
             // UnitOfWork
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
@@ -28,6 +30,8 @@ namespace FintechApp.Presentation.Extensions
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<ITransactionService, TransactionService>();
             services.AddScoped<IWalletService, WalletService>();
+            services.AddScoped<INotificationService, NotificationService>();
+            services.AddScoped<INotificationDispatcher, SignalRNotificationDispatcher>();
             return services;
         }
     }

@@ -44,7 +44,6 @@ public class WalletService : IWalletService
         return ApiResponse<PagedResponse<WalletDto>>.SuccessResponse(pagedResponse);
     }
 
-    // Admin lấy tất cả ví (phân trang ở service)
     public async Task<ApiResponse<PagedResponse<WalletDto>>> GetAllWalletsPagedAsync(int pageNumber, int pageSize)
     {
         var totalCount = await _unitOfWork.UserWallets.CountAllAsync();

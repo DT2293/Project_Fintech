@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using FintechApp.Application.Common;
+using FintechApp.Application.DTOs;
 using FintechApp.Application.Interfaces;
 using FintechApp.Domain.Entities;
 using FintechApp.Domain.Interfaces;
@@ -23,7 +25,7 @@ namespace FintechApp.Application.Services
             _dispatcher = dispatcher;
         }
 
-        public async Task<Notification> CreateNotificationAsync(int userId, string title, string message)
+        public async Task<ApiResponse<NotificationResponse>> CreateNotificationAsync(int userId, string title, string message)
         {
             var notif = new Notification
             {
@@ -31,6 +33,7 @@ namespace FintechApp.Application.Services
                 Title = title,
                 Message = message
             };
+
             await _repo.AddAsync(notif);
 
             await _dispatcher.SendToUserAsync(userId, new
@@ -41,19 +44,78 @@ namespace FintechApp.Application.Services
                 notif.CreatedAt
             });
 
-            return notif;
+            var dto = new NotificationResponse(
+                notif.id,
+                notif.UserId,
+                notif.Title,
+                notif.Message,
+                notif.IsRead,
+                notif.CreatedAt
+            );
+
+            return ApiResponse<NotificationResponse>.SuccessResponse(dto, "Notification created successfully");
         }
 
-      
-        public Task<List<Notification>> GetNotificationsAsync(int userId)
+        public async Task<PagedResponse<NotificationResponse>> GetNotificationsAsync(int userId, int pageNumber, int pageSize)
         {
-            throw new NotImplementedException();
+            var query = await _repo.GetByUserIdAsync(userId);
+
+            var totalRecords = query.Count;
+            var data = query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .Select(n => new NotificationResponse(
+                    n.id,
+                    n.UserId,
+                    n.Title,
+                    n.Message,
+                    n.IsRead,
+                    n.CreatedAt
+                ))
+                .ToList();
+
+            return new PagedResponse<NotificationResponse>
+            {
+                Success = true,
+                Message = "Notifications fetched successfully",
+                Data = data,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalRecords = totalRecords
+            };
         }
 
-        public Task MarkAsReadAsync(int id)
+        public async Task<ApiResponse<List<NotificationResponse>>> GetUnreadNotificationsAsync(int userId)
         {
-            throw new NotImplementedException();
+            var query = await _repo.GetUnreadByUserIdAsync(userId);
+
+            var data = query
+                .Select(n => new NotificationResponse(
+                    n.id,
+                    n.UserId,
+                    n.Title,
+                    n.Message,
+                    n.IsRead,
+                    n.CreatedAt
+                ))
+                .ToList();
+
+            return ApiResponse<List<NotificationResponse>>.SuccessResponse(data, "Unread notifications fetched successfully");
         }
+
+        public async Task<ApiResponse<string>> MarkAsReadAsync(int id)
+        {
+            await _repo.MarkAsReadAsync(id);
+            return ApiResponse<string>.SuccessResponse("OK", "Notification marked as read");
+        }
+
+        public async Task<ApiResponse<string>> MarkAllAsReadAsync(int userId)
+        {
+            await _repo.MarkAllAsReadAsync(userId);
+            return ApiResponse<string>.SuccessResponse("OK", "All notifications marked as read");
+        }
+
+
     }
 }
 

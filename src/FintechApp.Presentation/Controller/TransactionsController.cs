@@ -16,8 +16,7 @@ public class TransactionsController : ControllerBase
     }
 
     // GET api/Transactions/me/wallet/{walletId}?pageNumber=1&pageSize=20
-    // User xem giao dịch của chính họ trong 1 ví
-    [Authorize]
+    // User
     [HttpGet("me/wallet/{walletId}")]
     public async Task<IActionResult> GetMyTransactionsByWalletPaged(int walletId, int pageNumber = 1, int pageSize = 20)
     {
@@ -31,8 +30,7 @@ public class TransactionsController : ControllerBase
     }
 
     // GET api/Transactions/wallet/{walletId}?pageNumber=1&pageSize=20
-    // Admin (hoặc role có quyền tương ứng) xem giao dịch của bất kỳ ví nào
-    [Authorize]
+    // Admin
     [HttpGet("wallet/{walletId}")]
     public async Task<IActionResult> GetByWalletPaged(int walletId, int pageNumber = 1, int pageSize = 20)
     {
@@ -41,8 +39,7 @@ public class TransactionsController : ControllerBase
     }
 
     // GET api/Transactions/{id}
-    // Admin (hoặc role có quyền) xem chi tiết giao dịch theo id
-    [Authorize]
+    // Admin 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetTransactionById(int id)
     {

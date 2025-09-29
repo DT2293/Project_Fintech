@@ -25,5 +25,44 @@ namespace FintechApp.Infrastructure.Repositories
                 .OrderByDescending(n => n.CreatedAt)
                 .ToListAsync();
         }
+
+        public async Task<List<Notification>> GetUnreadByUserIdAsync(int userId)
+        {
+            return await _context.notifications
+                .Where(n => n.UserId == userId && !n.IsRead)
+                .OrderByDescending(n => n.CreatedAt)
+                .ToListAsync();
+        }
+
+        public async Task MarkAsReadAsync(int notificationId)
+        {
+            var notif = await _context.notifications
+                .FirstOrDefaultAsync(n => n.id == notificationId);
+
+            if (notif != null && !notif.IsRead)
+            {
+                notif.IsRead = true;
+                _context.notifications.Update(notif);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task MarkAllAsReadAsync(int userId)
+        {
+            var notifs = await _context.notifications
+                .Where(n => n.UserId == userId && !n.IsRead)
+                .ToListAsync();
+
+            if (notifs.Any())
+            {
+                foreach (var n in notifs)
+                {
+                    n.IsRead = true;
+                }
+
+                _context.notifications.UpdateRange(notifs);
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 }

@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using dotenv.net;
+using FintechApp.Presentation.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,7 +33,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // Services
 builder.Services.AddApplicationServices(configuration);
 builder.Services.AddControllers();
-
+builder.Services.AddSignalR();
 builder.Services.AddEndpointsApiExplorer();
 
 // Authentication & Authorization
@@ -127,13 +128,24 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // CORS
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("AllowAll",
+//        policy => policy.AllowAnyOrigin()
+//                        .AllowAnyMethod()
+//                        .AllowAnyHeader());
+//});
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll",
-        policy => policy.AllowAnyOrigin()
-                        .AllowAnyMethod()
-                        .AllowAnyHeader());
+    options.AddPolicy("AllowLocalhost", policy =>
+    {
+        policy.WithOrigins("https://localhost:7118") // 👈 origin frontend
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials(); // SignalR cần cái này
+    });
 });
+
 
 builder.Services.AddHttpContextAccessor();
 
@@ -161,4 +173,5 @@ app.UseSwaggerUI(c =>
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHub<NotificationHub>("/notificationHub");
 app.Run();

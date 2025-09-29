@@ -95,13 +95,12 @@ namespace FintechApp.Application.Services
         }
         public async Task<ApiResponse<List<UserDto>>> GetAllUserServiceAsync(int pageNumber,int pageSize,ClaimsPrincipal userClaims)
         {
-            // 1. Check quyền
-            if (!userClaims.IsInRole("Admin")) // hoặc check Permission khác
+
+            if (!userClaims.IsInRole("Admin"))
             {
                 return ApiResponse<List<UserDto>>.Fail("Bạn không có quyền truy cập");
             }
 
-            // 2. Nếu có quyền thì tiếp tục
             var totalRecords = await _unitOfWork.Users.CountAsync();
             var users = await _unitOfWork.Users.GetAllUserAsync(pageNumber, pageSize);
 
@@ -124,7 +123,6 @@ namespace FintechApp.Application.Services
                 )).ToList()
             )).ToList();
 
-            // 3. Trả về PagedResponse
             return new PagedResponse<UserDto>
             {
                 Success = true,

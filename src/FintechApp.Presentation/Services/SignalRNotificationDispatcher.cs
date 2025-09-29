@@ -15,7 +15,7 @@ namespace FintechApp.Presentation.Services
 
         public async Task SendToUserAsync(int userId, object payload)
         {
-            await _hubContext.Clients.Group(userId).SendAsync("ReceiveNotification", payload);
+            await _hubContext.Clients.Group(userId.ToString()).SendAsync("ReceiveNotification", payload);
         }
 
         
